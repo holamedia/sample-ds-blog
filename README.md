@@ -6,7 +6,7 @@
 
 https://holamedia.github.io/sample-ds-blog/
 
-# My Blog
+# Sample Blog for Fastpages
 
 
 _powered by [fastpages](https://github.com/fastai/fastpages)_
