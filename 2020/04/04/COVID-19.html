@@ -91,7 +91,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      7 min read
+      6 min read
     
 </span></p>
 
@@ -140,118 +140,11 @@ window.onload = wrap_img;
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><a href="https://colab.research.google.com/github/holamedia/sample-ds-blog/blob/master/_notebooks/2020_04_04_COVID_19.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" /></a></p>
+<p><a href="https://colab.research.google.com/github/holamedia/sample-ds-blog/blob/master/_notebooks/2020-04-04-COVID-19.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab" /></a></p>
 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Data-Preparation">Data Preparation<a class="anchor-link" href="#Data-Preparation"> </a></h1>
-</div>
-</div>
-</div>
-    
-    
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">altair</span> <span class="k">as</span> <span class="nn">alt</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-    
-
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Import-Data-from-Source-and-Create-Global-Variables">Import Data from Source and Create Global Variables<a class="anchor-link" href="#Import-Data-from-Source-and-Create-Global-Variables"> </a></h2>
-</div>
-</div>
-</div>
-    
-    
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># COVID-19 Data from https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series</span>
-<span class="n">base_url</span> <span class="o">=</span> <span class="s1">&#39;https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data&#39;</span>
-
-<span class="c1"># confirmed, deaths, recovered</span>
-<span class="k">def</span> <span class="nf">get_time_series</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
-  <span class="n">_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/csse_covid_19_time_series/time_series_covid19_</span><span class="si">{</span><span class="nb">type</span><span class="si">}</span><span class="s1">_global.csv&#39;</span>
-  <span class="n">_dff</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">_url</span><span class="p">)</span>
-  <span class="n">_cols</span> <span class="o">=</span> <span class="n">_dff</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="o">~</span><span class="n">_dff</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s1">&#39;Province/State&#39;</span><span class="p">,</span> <span class="s1">&#39;Country/Region&#39;</span><span class="p">,</span> <span class="s1">&#39;Lat&#39;</span><span class="p">,</span> <span class="s1">&#39;Long&#39;</span><span class="p">])]</span>
-  <span class="n">_dff</span> <span class="o">=</span> <span class="p">(</span><span class="n">_dff</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Country/Region&#39;</span><span class="p">)[</span><span class="n">_cols</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Cases&#39;</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;level_1&#39;</span><span class="p">:</span> <span class="s1">&#39;Date&#39;</span><span class="p">,</span> <span class="s1">&#39;Country/Region&#39;</span><span class="p">:</span> <span class="s1">&#39;Country&#39;</span><span class="p">}))</span>
-  <span class="n">_dff</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">_dff</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;%m/</span><span class="si">%d</span><span class="s1">/%y&#39;</span><span class="p">)</span>
-  <span class="k">return</span> <span class="n">_dff</span>
-
-<span class="c1"># eg. 03-27-2020</span>
-<span class="k">def</span> <span class="nf">get_df_daily</span><span class="p">(</span><span class="n">date</span><span class="p">):</span>
-  <span class="n">_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s1">/csse_covid_19_daily_reports/</span><span class="si">{</span><span class="n">date</span><span class="si">}</span><span class="s1">.csv&#39;</span>
-  <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">_url</span><span class="p">)</span>
-
-<span class="n">df_confirmed</span> <span class="o">=</span> <span class="n">get_time_series</span><span class="p">(</span><span class="s1">&#39;confirmed&#39;</span><span class="p">)</span>
-<span class="n">df_recovered</span> <span class="o">=</span> <span class="n">get_time_series</span><span class="p">(</span><span class="s1">&#39;recovered&#39;</span><span class="p">)</span>
-<span class="n">df_deaths</span> <span class="o">=</span> <span class="n">get_time_series</span><span class="p">(</span><span class="s1">&#39;deaths&#39;</span><span class="p">)</span>
-
-<span class="n">date_latest</span> <span class="o">=</span> <span class="n">df_confirmed</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-
-<span class="k">def</span> <span class="nf">countries_cases</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">date_as_of</span><span class="o">=</span><span class="n">date_latest</span><span class="p">):</span>
-  <span class="n">df_latest</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">date_as_of</span><span class="p">)]</span>
-  <span class="n">df_latest_n</span> <span class="o">=</span> <span class="n">df_latest</span><span class="p">[</span><span class="n">df_latest</span><span class="p">[</span><span class="s1">&#39;Cases&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">n</span><span class="p">]</span>
-  <span class="k">return</span> <span class="n">df_latest_n</span>
-
-<span class="c1"># Last n days of type e.g. confirmed, recovered, deaths</span>
-<span class="n">df_last</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">name</span><span class="p">,</span> <span class="n">_df</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">_df</span><span class="p">[</span><span class="n">_df</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">_df</span><span class="p">[</span><span class="s1">&#39;Date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="n">n</span><span class="p">))]</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">&#39;Country&#39;</span><span class="p">,</span> <span class="s1">&#39;Date&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Cases&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">})</span>
-
-<span class="c1"># Last 2 days all global</span>
-<span class="n">df_summary</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">last_n</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_last</span><span class="p">(</span><span class="s1">&#39;Confirmed&#39;</span><span class="p">,</span> <span class="n">df_confirmed</span><span class="p">,</span> <span class="n">last_n</span><span class="p">),</span> <span class="n">df_last</span><span class="p">(</span><span class="s1">&#39;Deaths&#39;</span><span class="p">,</span> <span class="n">df_deaths</span><span class="p">,</span> <span class="n">last_n</span><span class="p">),</span> <span class="n">df_last</span><span class="p">(</span><span class="s1">&#39;Recovered&#39;</span><span class="p">,</span> <span class="n">df_recovered</span><span class="p">,</span> <span class="n">last_n</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-<span class="c1">#df_summary.xs(&#39;Malaysia&#39;, level = 0)</span>
-
-<span class="n">df_global</span> <span class="o">=</span> <span class="n">df_summary</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;Date&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-
-<span class="n">df_global_summary</span> <span class="o">=</span> <span class="n">df_global</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;level_1&#39;</span><span class="p">:</span> <span class="s1">&#39;Type&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;Cases&#39;</span><span class="p">})</span>
-
-<span class="c1">#based_chart = alt.Chart(df_global).encode(x = &#39;monthdate(Date):O&#39;)</span>
-<span class="c1">#closed_chart = based_chart.mark_bar().encode(y = &#39;Deaths:Q&#39;)</span>
-<span class="c1">#confirmed_chart = based_chart.mark_bar().encode(y = &#39;Confirmed:Q&#39;)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="n">date_latest</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>2020-04-03 00:00:00
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-    
-
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="List-of-Countries-(Optional)">List of Countries (Optional)<a class="anchor-link" href="#List-of-Countries-(Optional)"> </a></h3>
